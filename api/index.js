@@ -6,7 +6,7 @@ app.use(express.json());
 
 // Example route
 app.get('/', (req, res) => {
-  res.send('Hello from Express on Vercel!');
+  res.send('Hello from webhook!');
 });
 
 // Export the app
