@@ -5,7 +5,7 @@ const app = express();
 app.use(express.json());
 
 // Replace with your verify token
-const VERIFY_TOKEN = 'my_default_verify_token';
+const VERIFY_TOKEN = 'i2c_webhook';
 
 // Meta Webhook verification endpoint
 app.get('/webhook', (req, res) => {
