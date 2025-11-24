@@ -1,37 +1,43 @@
-// Import Express.js
-const express = require('express');
+const express = require("express");
+const bodyParser = require("body-parser");
  
-// Create an Express app
 const app = express();
+app.use(bodyParser.json());
  
-// Middleware to parse JSON bodies
-app.use(express.json());
+// VERIFY TOKEN (for GET request)
+app.get("/webhook", (req, res) => {
+  const verify_token = "usama";
  
-// Set port and verify_token
-const port = process.env.PORT || 3000;
-const verifyToken = "usama";
+  const mode = req.query["hub.mode"];
+  const token = req.query["hub.verify_token"];
+  const challenge = req.query["hub.challenge"];
  
-// Route for GET requests
-app.get('/webhook', (req, res) => {
-  const { 'hub.mode': mode, 'hub.challenge': challenge, 'hub.verify_token': token } = req.query;
- 
-  if (mode === 'subscribe' && token === verifyToken) {
-    console.log('WEBHOOK VERIFIED');
-    res.status(200).send(challenge);
+  if (mode && token && mode === "subscribe" && token === verify_token) {
+    return res.status(200).send(challenge);
   } else {
-    res.status(403).end();
+    return res.sendStatus(403);
   }
 });
  
-// Route for POST requests
-app.post('/webhook', (req, res) => {
-  const timestamp = new Date().toISOString().replace('T', ' ').slice(0, 19);
-  console.log(`\n\nWebhook received ${timestamp}\n`);
-  console.log(JSON.stringify(req.body, null, 2));
-  res.status(200).end();
+// HANDLE INCOMING WHATSAPP MESSAGES (POST request)
+app.post("/webhook", (req, res) => {
+  console.log("Incoming:", JSON.stringify(req.body, null, 2));
+ 
+  // Important: Facebook requires 200 response
+  res.sendStatus(200);
+ 
+  // Extract user message
+  try {
+    const entry = req.body.entry?.[0];
+    const changes = entry?.changes?.[0];
+    const message = changes?.value?.messages?.[0];
+ 
+    if (message && message.type === "text") {
+      console.log("User replied:", message.text.body);
+    }
+  } catch (err) {
+    console.log("Error:", err);
+  }
 });
  
-// Start the server
-app.listen(port, () => {
-  console.log(`\nListening on port ${port}\n`);
-});
+app.listen(3000, () => console.log("Webhook running on port 3000"));
