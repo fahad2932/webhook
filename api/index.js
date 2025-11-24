@@ -32,7 +32,6 @@ app.post('/', (req, res) => {
 });
  
 // Start the server
-app.listen(port, () => {
-  console.log(`\nListening on port ${port}\n`);
-});
+// Export app directly for Vercel
+module.exports = app;
 
