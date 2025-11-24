@@ -9,7 +9,7 @@ app.use(express.json());
  
 // Set port and verify_token
 const port = process.env.PORT || 3000;
-const verifyToken = process.env.VERIFY_TOKEN;
+const verifyToken = usama;
  
 // Route for GET requests
 app.get('/', (req, res) => {
@@ -35,3 +35,4 @@ app.post('/', (req, res) => {
 app.listen(port, () => {
   console.log(`\nListening on port ${port}\n`);
 });
+
