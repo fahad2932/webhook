@@ -9,7 +9,7 @@ app.use(express.json());
  
 // Set port and verify_token
 const port = process.env.PORT || 3000;
-const verifyToken = usama;
+const verifyToken = "usama";
  
 // Route for GET requests
 app.get('/webhook', (req, res) => {
@@ -38,5 +38,6 @@ app.get('/', (req, res) => {
 // Start the server
 // Export app directly for Vercel
 module.exports = app;
+
 
 
