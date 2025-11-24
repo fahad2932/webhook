@@ -1,53 +1,37 @@
+// Import Express.js
 const express = require('express');
+ 
+// Create an Express app
 const app = express();
-
-// Middleware
+ 
+// Middleware to parse JSON bodies
 app.use(express.json());
-
-// Replace with your verify token
-const VERIFY_TOKEN = 'i2c_webhook';
-
-// Meta Webhook verification endpoint
-app.get('/webhook', (req, res) => {
-  const mode = req.query['hub.mode'];
-  const token = req.query['hub.verify_token'];
-  const challenge = req.query['hub.challenge'];
-
-  console.log('[GET] /webhook called with mode:', mode, 'token:', token);
-
-  if (mode === 'subscribe' && token === VERIFY_TOKEN) {
-    console.log('[WEBHOOK_VERIFIED] Token matches. Responding with challenge.');
+ 
+// Set port and verify_token
+const port = process.env.PORT || 3000;
+const verifyToken = process.env.VERIFY_TOKEN;
+ 
+// Route for GET requests
+app.get('/', (req, res) => {
+  const { 'hub.mode': mode, 'hub.challenge': challenge, 'hub.verify_token': token } = req.query;
+ 
+  if (mode === 'subscribe' && token === verifyToken) {
+    console.log('WEBHOOK VERIFIED');
     res.status(200).send(challenge);
   } else {
-    console.warn('[WEBHOOK_VERIFY_FAILED] Token mismatch or wrong mode.');
-    res.sendStatus(403);
+    res.status(403).end();
   }
 });
-
-// Meta Webhook event receiver
-app.post('/webhook', (req, res) => {
-  const body = req.body;
-  console.log('[POST] /webhook received body:', JSON.stringify(body, null, 2));
-
-  if (body.object && body.entry && Array.isArray(body.entry)) {
-    body.entry.forEach(entry => {
-      if (entry.changes && Array.isArray(entry.changes)) {
-        entry.changes.forEach(change => {
-          console.log('Change detected:', JSON.stringify(change, null, 2));
-        });
-      }
-    });
-    res.status(200).send('EVENT_RECEIVED');
-  } else {
-    console.warn('Received unsupported body format.');
-    res.sendStatus(404);
-  }
+ 
+// Route for POST requests
+app.post('/', (req, res) => {
+  const timestamp = new Date().toISOString().replace('T', ' ').slice(0, 19);
+  console.log(`\n\nWebhook received ${timestamp}\n`);
+  console.log(JSON.stringify(req.body, null, 2));
+  res.status(200).end();
 });
-
-// Optional root route
-app.get('/', (req, res) => {
-  res.send('Hello from Express webhook on Vercel!');
+ 
+// Start the server
+app.listen(port, () => {
+  console.log(`\nListening on port ${port}\n`);
 });
-
-// Export app directly for Vercel
-module.exports = app;
